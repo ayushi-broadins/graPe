@@ -27,7 +27,7 @@ shinyUI(
         column(
           width = 8,
           offset = 2,
-          includeHTML("ui_html_text/home.txt"),
+          includeHTML("ui_elements/home.txt"),
           column(
             width = 12,
             #offset = 2,
@@ -286,7 +286,7 @@ shinyUI(
             column(
               8,
               offset = 2,
-              includeHTML("ui_html_text/about.txt")
+              includeHTML("ui_elements/about.txt")
               )
             ),
           width = 12
@@ -317,7 +317,7 @@ shinyUI(
               offset = 2,
               br(),
               tags$ul(style="list-style-type:circle;padding-left: 12px;",
-                      includeHTML("ui_html_text/instructions.txt"))
+                      includeHTML("ui_elements/instructions.txt"))
               )
             ),
           width = 12
@@ -348,7 +348,7 @@ shinyUI(
               offset =2,
               br(),
               tags$ul(style="list-style-type:circle;padding-left: 12px;",
-                      includeHTML("ui_html_text/citation.txt"))
+                      includeHTML("ui_elements/citation.txt"))
             )
           ),
           width = 12
