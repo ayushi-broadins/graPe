@@ -1,0 +1,21 @@
+﻿<div style = "font-weight: bold;text-align:center;font-family:arial;margin:5px;">
+	<img src="logo.png" height="80px" style = "padding:0px; margin:0px;">
+	<h3 style = "padding:0px; margin:5px 1px 1px 5px;">
+		<span style ="color:#8D33FF;">gra
+		</span>
+		<span style ="color:#FFB533;margin-left: -6px;">P
+		</span>
+		<span style ="color:#8D33FF;margin-left: -6px;">e: generalized rare-event assay
+		</span>
+		<span style ="color:#FFB533;">Poisson 
+		</span>
+		<span style ="color:#8D33FF;">estimator 
+		</span>
+	</h3>
+	<h5 style = "margin:5px;">
+		You can use graPe to analyze your assays with rare events.
+	</h5>
+<div class="tooltip">Hover over me
+  <span class="tooltiptext">Tooltip text</span>
+</div>
+</div>

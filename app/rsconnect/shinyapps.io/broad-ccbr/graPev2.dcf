@@ -1,0 +1,12 @@
+name: graPev2
+title: graPev2
+username:
+account: broad-ccbr
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2338333
+bundleId: 3227666
+url: https://broad-ccbr.shinyapps.io/graPev2/
+when: 1591270067.49297
+asMultiple: FALSE
+asStatic: FALSE

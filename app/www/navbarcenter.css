@@ -1,0 +1,9 @@
+.navbar1 .navbar{ background-color: #00b8bd;}
+
+.navbar1 .navbar-centered a {
+  float: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

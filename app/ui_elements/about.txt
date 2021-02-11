@@ -1,0 +1,11 @@
+﻿<div style = "padding: 20px; margin: 0px 0px 50px 0px;">
+		<img src="logo.png" height="80px">
+		<h3>
+		<b>
+			graPe: assay-quality and treatment-scoring tool for rare-event outputs in high-throughput and high-content screening
+		</b>
+		</h3>
+	<p style="text-align: justify;">
+		In the field of drug discovery, high-throughput screens (HTS) and high-content screens (HCS) are commonly used to identify compounds that result in a desired assay output. The outputs of such screens may be either continuous values (such as fluorescence intensities) or discrete values (such as counts). Discrete outputs can represent significant but rare (i.e., low-count) events, for example the desired discrete output of an assay can represent rare biological events. The Poisson distribution is used to represent the distribution of rare events in a large population. However, most standard metrics for assay quality and treatment scoring (Z’ factor, B-score, and D-score, among others) assume that the outputs of HTS are microtiter plate-reader assays and therefore have normally distributed measurement-error distributions. Therefore, using these standard metrics for an output that quantifies a rare event can lead to poor quality scores even for otherwise good-quality assays. To address this shortcoming, we have developed a scoring framework that extends the statistical foundation of the Z’-factor and D-score to the Poisson distribution. The generalized rare-event assay Poisson estimator (graPe) is a web tool that can be used by bioinformaticians, biologists, and chemists alike to find Poisson statistics for a rare-event output assay in HTS or HCS. We benchmark the performance of the tool based on treatment scoring for a high-content assay used to reveal compound-induced increases in rare ß-cell proliferation events among human pancreatic islets. Since basal ß-cell proliferation is rare, we used graPe to analyze the HCS data for ~6,000 Drug Repurposing Hub compounds. As confirmed by the microscopic images of the plate wells, the Poisson statistics could reliably identify small but significant changes in ß-cell proliferation.
+	</p>
+</div>

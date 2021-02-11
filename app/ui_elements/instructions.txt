@@ -1,0 +1,25 @@
+﻿<div style = "padding: 20px; margin: 0px 0px 50px 0px;">
+<h3><i class="fas fa-chalkboard-teacher"></i>  Instructions
+</h3>
+<br></br>
+<ul style="list-style-type:circle;padding-left: 12px;">
+	<li>Please upload a comma-separated-value (CSV) file only.</li>
+	<li>Input file should contain all plates from a single run, but not multiple runs.</li>
+	<li>The file should have a single header row with the following headers:</li>
+	<ol type="1">
+		<li><strong>plate_id : </strong>alphanumeric string different for each assay plate</li>
+		<li><strong>well_id : </strong>standard nomenclature for each assay well (e.g., A01, P23)</li>
+		<li><strong>site_id  : </strong>numeric index of site within a well (i.e., 1, 2, 3, ...)</li>
+		<li><strong>trt      : </strong>alphanumeric string different for each treatment (e.g., 5-IT, BRD6060, DMSO)</li>
+		<li><strong>total    : </strong>total number of objects in the site (e.g., beta cells)</li>
+		<li><strong>count    : </strong>count of rare events in the site (e.g., proliferating beta cells)</li>
+	</ol>
+</ul>
+<hr>
+</hr>
+<br></br>
+<h3>Tutorials
+</h3>
+<p><mark style="background-color: ivory;outline-color: blue">Coming soon..</mark>
+</p>
+</div>        

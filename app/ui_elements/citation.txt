@@ -1,0 +1,16 @@
+﻿<div style = "padding: 20px; margin: 0px 0px 50px 0px;">
+<h3><i class="fas fa-quote-left"></i>  Publication details
+</h3>
+<br></br>
+<p style="padding-left: 12px;">
+	To cite the use of graPe for your own work, please use [camo] [ris] [enl].
+	<br></br>
+	graPe was developed by the Computational Research group, Chemical Biology and Therapeutics Science Program, Broad Institute.
+	<br></br>
+	<strong>Developer</strong>:&nbsp;&nbsp;Ayushi Agrawal&nbsp;
+	<a href="mailto:ayushi@broadinstitute.com"><i class="fa fa-envelope"></i></a>
+	<br></br>
+	<strong>Authors</strong>:&nbsp;&nbsp;Ayushi Agrawal, Daniel E. Palmieri, Toshiki Urashima, Amedeo Vetere, Vlado Dančík, Bridget K. Wagner, Paul A. Clemons
+</p>
+<hr>
+</hr>      
