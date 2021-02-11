@@ -1,8 +1,8 @@
 library(shiny)
 #call for functions calculating the poisson score
-source('./poiss.calc.R')
+source('./modules/poiss.calc.R')
 #call for function for validation of the input
-source('./validateinput.R')
+source('./modules/validateinput.R')
 
 
 shinyServer( function(input, output, session){
