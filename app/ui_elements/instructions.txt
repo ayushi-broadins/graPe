@@ -4,9 +4,10 @@
 <br></br>
 <ul style="list-style-type:circle;padding-left: 12px;">
 	<li>Please upload a comma-separated-value (CSV) file only.</li>
-	<li>Input file should contain all plates from a single run, but not multiple runs.</li>
+	<li>Input file can contain plates from multiple runs.</li>
 	<li>The file should have a single header row with the following headers:</li>
 	<ol type="1">
+		<li><strong>run_id : </strong>alphanumeric string different for each experiment or run</li>
 		<li><strong>plate_id : </strong>alphanumeric string different for each assay plate</li>
 		<li><strong>well_id : </strong>standard nomenclature for each assay well (e.g., A01, P23)</li>
 		<li><strong>site_id  : </strong>numeric index of site within a well (i.e., 1, 2, 3, ...)</li>

@@ -274,6 +274,7 @@ shinyServer( function(input, output, session){
       showModal(modalDialog(
         title = "Legend",
         tags$ul(style="list-style-type:circle;padding-left: 12px;",
+                tags$li("run_id = user-provided run identifier"),
                 tags$li("plate_id = user-provided plate identifier"),
                 tags$li("trt = treatment condition of the well (e.g., DMSO or a compound name)"),
                 tags$li("poiss_zp = Poisson-based Z' factor for the plate based on user-provided definitions of control treatments"),
@@ -291,6 +292,7 @@ shinyServer( function(input, output, session){
       showModal(modalDialog(
         title = "Legend",
         tags$ul(style="list-style-type:circle;padding-left: 12px;",
+                tags$li("run_id = user-provided run identifier"),
                 tags$li("trt = treatment condition of the well (e.g., DMSO or a compound name)"),
                 tags$li("poiss_ds = Poisson-based D-score for the treatment the compound (cf. https://www.ncbi.nlm.nih.gov/pubmed/24464433/)"),
                 tags$li("fold_chg = fold-change (ratio) of the treatment response compared to the negative control"),
