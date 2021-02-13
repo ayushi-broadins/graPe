@@ -13,12 +13,14 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] gridExtra_2.3  reshape2_1.4.4 ggplot2_3.3.3  MASS_7.3-53    dplyr_1.0.4   
+[1] viridis_0.5.1     viridisLite_0.3.0 gridExtra_2.3     reshape2_1.4.4    ggplot2_3.3.3     MASS_7.3-53      
+[7] dplyr_1.0.4      
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.6       magrittr_2.0.1   splines_4.0.2    tidyselect_1.1.0 munsell_0.5.0    lattice_0.20-41 
- [7] colorspace_2.0-0 R6_2.5.0         rlang_0.4.10     stringr_1.4.0    plyr_1.8.6       tools_4.0.2     
-[13] grid_4.0.2       nlme_3.1-151     gtable_0.3.0     mgcv_1.8-33      DBI_1.1.1        withr_2.4.1     
-[19] ellipsis_0.3.1   digest_0.6.27    assertthat_0.2.1 tibble_3.0.6     lifecycle_0.2.0  crayon_1.4.0    
-[25] Matrix_1.3-2     farver_2.0.3     purrr_0.3.4      vctrs_0.3.6      glue_1.4.2       labeling_0.4.2  
-[31] stringi_1.5.3    compiler_4.0.2   pillar_1.4.7     generics_0.1.0   scales_1.1.1     pkgconfig_2.0.3 
+ [1] Rcpp_1.0.6       pillar_1.4.7     compiler_4.0.2   plyr_1.8.6       tools_4.0.2      digest_0.6.27   
+ [7] lifecycle_0.2.0  tibble_3.0.6     gtable_0.3.0     nlme_3.1-151     lattice_0.20-41  mgcv_1.8-33     
+[13] pkgconfig_2.0.3  rlang_0.4.10     Matrix_1.3-2     rstudioapi_0.13  DBI_1.1.1        xfun_0.20       
+[19] withr_2.4.1      stringr_1.4.0    generics_0.1.0   vctrs_0.3.6      grid_4.0.2       tidyselect_1.1.0
+[25] glue_1.4.2       R6_2.5.0         farver_2.0.3     purrr_0.3.4      magrittr_2.0.1   scales_1.1.1    
+[31] ellipsis_0.3.1   splines_4.0.2    assertthat_0.2.1 colorspace_2.0-0 labeling_0.4.2   tinytex_0.29    
+[37] stringi_1.5.3    munsell_0.5.0    crayon_1.4.0    
