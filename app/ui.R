@@ -84,7 +84,7 @@ shinyUI(
                        useShinyjs(),
                        disabled(actionButton("do",
                                              HTML("&nbsp;&nbsp;Submit"),
-                                             width = '150px',
+                                             width = '120px',
                                              style = "color: #FFFFF; 
                                                      background-color: #994EFF; 
                                                      border-color: #994EFF;
@@ -94,15 +94,21 @@ shinyUI(
                        disabled(actionButton("invalidate", 
                                              HTML("&nbsp;&nbsp;Validate input"),
                                              class = "btn-warning",
-                                             width = '150px',
+                                             width = '120px',
                                              style = 'margin:5px;padding:5px; 
                                                      font-size:90%')),
                        disabled(actionButton("reset", 
                                              HTML("&nbsp;&nbsp;Reset"), 
                                              class = "btn-warning",
-                                             width = '150px',
+                                             width = '120px',
                                              style = 'margin:5px;padding:5px; 
-                                                     font-size:90%'))
+                                                     font-size:90%')),
+                       actionButton("Run example", 
+                                    HTML("&nbsp;&nbsp;Run example"), 
+                                    class = "btn-warning",
+                                    width = '120px',
+                                    style = 'margin:5px;padding:5px; 
+                                                     font-size:90%')
                 )
               ),
               fluidRow(
@@ -124,7 +130,7 @@ shinyUI(
           HTML(
             markdownToHTML(
               fragment.only=TRUE, 
-              text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2020 
+              text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2021 
                      The Broad Institute of MIT and Harvard")
             )
           )
@@ -269,7 +275,7 @@ shinyUI(
           HTML(
             markdownToHTML(
               fragment.only=TRUE, 
-              text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2020 
+              text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2021 
                      The Broad Institute of MIT and Harvard")
             )
           )
@@ -301,7 +307,7 @@ shinyUI(
             HTML(
               markdownToHTML(
                 fragment.only=TRUE, 
-                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2020 
+                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2021 
                      The Broad Institute of MIT and Harvard")
               )
             )
@@ -332,7 +338,7 @@ shinyUI(
             HTML(
               markdownToHTML(
                 fragment.only=TRUE, 
-                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2020 
+                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2021 
                      The Broad Institute of MIT and Harvard")
                 )
               )
@@ -363,7 +369,7 @@ shinyUI(
             HTML(
               markdownToHTML(
                 fragment.only=TRUE, 
-                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2020 
+                text=c("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2021 
                      The Broad Institute of MIT and Harvard")
               )
             )

@@ -11,12 +11,12 @@ validateinput <- function(infile){
   #read the csv file for other checks
   in.dat <- read.csv(infile)
   #list of expeected column names
-  cols.expected = c("plate_id","well_id","site_id", "trt","total","count" )
+  cols.expected = c("run_id","plate_id","well_id","site_id", "trt","total","count" )
   #check if the file has six columns
-  if(ncol(in.dat) != 6){
+  if(ncol(in.dat) < 7){
     isvalid <- paste0("Input file has ", 
                       ncol(in.dat), 
-                      " columns. Input file header row must have 6 columns",
+                      " columns. Input file header row must have all 7 columns",
                       " as specified in the instructions.")
     break
   } else if(!((setequal(colnames(in.dat),cols.expected)))){
