@@ -9,7 +9,7 @@
 # this source file location.
 ######################
 files.sources = list.files()
-files.sources = files.sources[files.sources != "sim.R"]
+files.sources = files.sources[!files.sources %in% c("sim.R","screen.R")]
 sapply(files.sources, source)
 
 
@@ -93,11 +93,19 @@ graPe_plate_quality <- poiss.score[(poiss.score$trt == 'poscon'),
                                      'nc.upperqi.per.plate.spline',
                                      'trt.lambdahat.per.plate',
                                      'trt.lowerqi.per.plate.spline')] %>% arrange(plate_id)
+colnames(graPe_plate_quality) <- c('run_id',
+                                   'plate_id'
+                                   ,'trt',
+                                   'poiss_zp',
+                                   'nc_lambdahat',
+                                   'nc_upperqi',
+                                   'pc_lambdahat',
+                                   'pc_lowerqi')
 # Make a data frame for the
 # treatment activity scores.
 # remove plates with negative Poisson Z'-factor
 # 92 plates remain
-keep_plate <- graPe_plate_quality[graPe_plate_quality$zprime_poiss >= 0 ,
+keep_plate <- graPe_plate_quality[graPe_plate_quality$poiss_zp >= 0 ,
                                   c('run_id','plate_id')]
 # create data frame for 29440 unique compounds and 1 positive control
 graPe_activity_scores <- merge(poiss.score, keep_plate, by=c('run_id','plate_id')) 
@@ -110,21 +118,30 @@ graPe_activity_scores <- unique(graPe_activity_scores[,c('run_id',
                                                           'trt.upperqi.per.run.spline',
                                                           'nc.50qi.per.run.spline',
                                                           'nc.upperqi.per.run.spline')]) %>% arrange(desc(dscore_poiss))
+colnames(graPe_activity_scores) = c('run_id',
+                                    'trt',
+                                    'poiss_ds',
+                                    'fold_chg',
+                                    'eff_siz',
+                                    'trt_middleqi',
+                                    'trt_upperqi',
+                                    'nc_middleqi',
+                                    'nc_upperqi')
 # the list of compounds that are simulated as hits
 em_hits <- unique(dat[dat$is_hit==1 & dat$trt!='poscon', 'trt'])
 # We identify hits using quantile/percentile method.
 # Hits are treatments with Poisson d-score greater than
 # the value of the 99th quantile of the Poisson d-score distribution. 
-upper_bound <- quantile(graPe_activity_scores$dscore_poiss, 0.99)
+upper_bound <- quantile(graPe_activity_scores$poiss_ds, 0.99)
 # find the confusion matrix for graPe
-table(graPe_activity_scores$dscore_poiss > upper_bound, graPe_activity_scores$trt %in% em_hits)
+table(graPe_activity_scores$poiss_ds > upper_bound, graPe_activity_scores$trt %in% em_hits)
 #             Hits in simulation
 #           |------|------|-----|
 #           |      | FALSE| TRUE|
 #           |------|------|-----|
-#Hits in    |FALSE | 29134|  12 |
+#Hits in    |FALSE | 29137|  13 |
 #           |------|------|-----|
-#graPe      |TRUE  | 156  | 139 |
+#graPe      |TRUE  | 153  | 138 |
 #           |------|------|-----|
 #
 #export the Poisson scores
@@ -142,16 +159,16 @@ write.csv(graPe_activity_scores,
 #Poisson Z' factor
 #calculate and log2 transform the separation band for each plate
 graPe_plate_quality <- graPe_plate_quality %>% 
-  mutate(sep_band = trt.lowerqi.per.plate.spline - nc.upperqi.per.plate.spline,
+  mutate(sep_band = pc_lowerqi - nc_upperqi,
          sep_band_log2 = log2(1 - min(sep_band) + sep_band))
-fit <- lm(zprime_poiss ~ sep_band_log2, data = graPe_plate_quality)
+fit <- lm(poiss_zp ~ sep_band_log2, data = graPe_plate_quality)
 jpeg("../plots/simulation/poisson_zprimefactor.jpeg", quality = 100)
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point(alpha=0.5,size=6) +
   stat_smooth(method = "lm", color = 4, fill = 4, alpha=0.3) +
   annotate("text",
            x=min(graPe_plate_quality$sep_band_log2),
-           y=max(graPe_plate_quality$zprime_poiss)-0.1,
+           y=max(graPe_plate_quality$poiss_zp)-0.1,
            hjust=0,
            size = 5,
            family = "sans",
@@ -168,7 +185,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 dev.off()
 #Poisson d-scores
 graPe_activity_scores <- graPe_activity_scores %>% 
-  mutate(dscore_poiss_log2 = log2(1 - min(dscore_poiss) + dscore_poiss))
+  mutate(dscore_poiss_log2 = log2(1 - min(poiss_ds) + poiss_ds))
 jpeg("../plots/simulation/poisson_dscore.jpeg", quality = 100)
 ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
   geom_point(color='grey',alpha=0.3, size = 4) + 
@@ -176,9 +193,9 @@ ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
              aes(x=trt,y=dscore_poiss_log2),
              color='blue',
              alpha=0.6,size=4) +
-  geom_point(data =graPe_activity_scores[graPe_activity_scores$trt == 'poscon',],
+  geom_jitter(data =graPe_activity_scores[graPe_activity_scores$trt == 'poscon',],
              aes(x=trt,y=dscore_poiss_log2),
-             color='#00B81F',size=4) +
+             color='#00B81F',alpha = 0.6,size=4) +
   labs(title="",#"Scatter plot of Poisson d-score", 
        x="treatment", 
        y = "Poisson d-score (log2)") +
@@ -186,8 +203,8 @@ ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         plot.margin=unit(c(0.5,1,0.5,0.5),"cm"))+
-  geom_hline(yintercept=log2(1 - min(graPe_activity_scores$dscore_poiss) + upper_bound), 
-             linetype='dashed', color='black', size=1) +
+  geom_hline(yintercept=log2(1 - min(graPe_activity_scores$poiss_ds) + upper_bound), 
+             linetype='dashed', color='black', size=1.5) +
   coord_cartesian(clip = "off")+
   theme(text=element_text(size=24))
 dev.off()

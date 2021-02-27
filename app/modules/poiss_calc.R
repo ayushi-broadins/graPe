@@ -51,12 +51,10 @@ poisson_stats <- function(dat,negative.control){
               #https://www.mathworks.com/matlabcentral/answers/294909-poisson-confidence-interval-why-limit-it-to-100-counts
               #https://www.simfit.org.uk/parameter_confidence_limits.pdf
               nc.upperqi.per.plate = qpois(pnorm(3), lambda = nc.lambdahat.per.plate ),
-              nc.upperqi.per.plate.spline = calculate_spline(nc.upperqi.per.plate,nc.lambdahat.per.plate,pnorm(3)),
-              nc.upperci.per.plate = qchisq(1-0.05/2,(2*(n()*nc.lambdahat.per.plate + 1)))/(2*n()))
+              nc.upperqi.per.plate.spline = calculate_spline(nc.upperqi.per.plate,nc.lambdahat.per.plate,pnorm(3)))
   unique_plate <- merge(x=unique_plate, y=nc_poissonfit, by="plate_id")
   unique_well <- as.data.frame(unique_well)
   unique_plate[,'nc.lambdahat.per.run'] <- as.vector(fitdistr(unique_well[(unique_well$trt == negative.control),'count.norm'], "poisson")$estimate)
-  unique_plate[,'nc.upperci.per.run'] <- qchisq(1-0.05/2,(2*(length(unique_well[(unique_well$trt == negative.control),'count.norm'])*unique(unique_plate$nc.lambdahat.per.run) + 1)))/(2*length(unique_well[(unique_well$trt == negative.control),'count.norm']))
   unique_plate[,'nc.upperqi.per.run'] <- qpois(pnorm(1),unique(unique_plate$nc.lambdahat.per.run))
   unique_plate[,'nc.upperqi.per.run.spline'] <- calculate_spline(unique(unique_plate$nc.upperqi.per.run),unique(unique_plate$nc.lambdahat.per.run),pnorm(1))
   unique_plate[,'nc.50qi.per.run'] <- qpois(0.5,unique(unique_plate$nc.lambdahat.per.run))
@@ -66,16 +64,12 @@ poisson_stats <- function(dat,negative.control){
   unique_trt <- unique_well %>% filter(trt != negative.control) %>% group_by(plate_id,trt) %>%
     summarise(trt.lambdahat.per.plate = as.vector(fitdistr(count.norm, "poisson")$estimate),
               trt.lowerqi.per.plate = qpois(pnorm(-3), lambda = trt.lambdahat.per.plate ),
-              trt.lowerqi.per.plate.spline = calculate_spline(trt.lowerqi.per.plate,trt.lambdahat.per.plate,pnorm(-3)),
-              trt.lowerci.per.plate = qchisq(0.05/2,(2*(n()*trt.lambdahat.per.plate)))/(2*n()),
-              trt.upperci.per.plate = qchisq(1-0.05/2,(2*(n()*trt.lambdahat.per.plate + 1)))/(2*n()))
-  unique_trt <- merge(x=unique_trt, y=unique_plate[,c('plate_id','nc.lambdahat.per.plate','nc.upperqi.per.plate','nc.upperqi.per.plate.spline','nc.upperci.per.plate')], by='plate_id')
+              trt.lowerqi.per.plate.spline = calculate_spline(trt.lowerqi.per.plate,trt.lambdahat.per.plate,pnorm(-3)))
+  unique_trt <- merge(x=unique_trt, y=unique_plate[,c('plate_id','nc.lambdahat.per.plate','nc.upperqi.per.plate','nc.upperqi.per.plate.spline')], by='plate_id')
   unique_trt['zprime_poiss'] <- (unique_trt$trt.lowerqi.per.plate.spline - unique_trt$nc.upperqi.per.plate.spline) / abs(unique_trt$trt.lambdahat.per.plate - unique_trt$nc.lambdahat.per.plate)
   
   trt_distr_run <- unique_well %>% filter(trt != negative.control) %>% group_by(trt) %>%
     summarise(trt.lambdahat.per.run = as.vector(fitdistr(count.norm, "poisson")$estimate),
-              trt.lowerci.per.run = qchisq(0.05/2,(2*(n()*trt.lambdahat.per.run)))/(2*n()),
-              trt.upperci.per.run = qchisq(1-0.05/2,(2*(n()*trt.lambdahat.per.run + 1)))/(2*n()),
               trt.lowerqi.per.run = qpois(pnorm(-1),trt.lambdahat.per.run),
               trt.lowerqi.per.run.spline = calculate_spline(trt.lowerqi.per.run,trt.lambdahat.per.run,pnorm(-1)),
               trt.upperqi.per.run = qpois(pnorm(1),trt.lambdahat.per.run),
@@ -85,14 +79,9 @@ poisson_stats <- function(dat,negative.control){
   unique_trt <- merge(x=unique_trt, y=trt_distr_run, by='trt')
   unique_trt <- unique_trt %>% 
     mutate( nc.lambdahat.per.run = unique(unique_plate$nc.lambdahat.per.run),
-            #nc.upperqi.per.run = unique(unique_plate$nc.upperqi.per.run),
-            #nc.50qi.per.run = unique(unique_plate$nc.50qi.per.run),
             nc.upperqi.per.run.spline = unique(unique_plate$nc.upperqi.per.run.spline),
             nc.50qi.per.run.spline = unique(unique_plate$nc.50qi.per.run.spline),
-            nc.upperci.per.run = unique(unique_plate$nc.upperci.per.run),
-            fold_change = trt.lambdahat.per.run/unique(unique_plate$nc.upperci.per.run),
-            fold_change_upperci = trt.upperci.per.run/unique(unique_plate$nc.upperci.per.run),
-            fold_change_lowerci = trt.lowerci.per.run/unique(unique_plate$nc.upperci.per.run),
+            fold_change = trt.50qi.per.run.spline/nc.upperqi.per.run.spline,
             effect_size = trt.50qi.per.run.spline - nc.50qi.per.run.spline,
             err_cmpd = sqrt((trt.upperqi.per.run.spline - trt.50qi.per.run.spline)^2 + (nc.upperqi.per.run.spline - nc.50qi.per.run.spline)^2),
             dscore_poiss = effect_size/err_cmpd)
@@ -115,5 +104,20 @@ run_graPe <- function(dat,negative.control){
     else
       graPe_output <- as.data.frame(rbind(graPe_output,graPe_run_dat))
   }
+  #2 significant figures are reported
+  float_cols <- c('zprime_poiss',
+                  'nc.lambdahat.per.plate',
+                  'nc.upperqi.per.plate.spline',
+                  'trt.lambdahat.per.plate',
+                  'trt.lowerqi.per.plate.spline',
+                  'dscore_poiss',
+                  'fold_change',
+                  'effect_size',
+                  'trt.50qi.per.run.spline',
+                  'trt.upperqi.per.run.spline',
+                  'nc.50qi.per.run.spline',
+                  'nc.upperqi.per.run.spline')
+  graPe_output[,float_cols] <- round(graPe_output[,float_cols],2)
+  
   return(graPe_output)
 }

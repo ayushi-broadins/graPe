@@ -3,7 +3,8 @@ library(shiny)
 source('./modules/poiss_calc.R')
 #call for function for validation of the input
 source('./modules/validateinput.R')
-
+#increase Shiny limits for file uploads
+options(shiny.maxRequestSize=30*1024^2)
 
 shinyServer( function(input, output, session){
   #defining constants
@@ -226,7 +227,7 @@ shinyServer( function(input, output, session){
                       'trt.lambdahat.per.plate',
                       'trt.lowerqi.per.plate.spline')
       qual_output[,float_cols] <- round(qual_output[,float_cols],2)
-      colnames(qual_output) = c('run_id','plate_id','trt','poiss_zp',paste0('nc_',lambda,'hat'),'nc_upperci',paste0('pc_',lambda,'hat'),'pc_lowerci')
+      colnames(qual_output) = c('run_id','plate_id','trt','poiss_zp',paste0('nc_',lambda,'hat'),'nc_upperqi',paste0('pc_',lambda,'hat'),'pc_lowerqi')
       rownames(qual_output) = seq(1,nrow(qual_output))
       return(DT::datatable(qual_output))
       #}
@@ -239,21 +240,29 @@ shinyServer( function(input, output, session){
     #output the calculated poisson d-score(treatment score tab)
     output$dval <- DT::renderDataTable({
       scoredata <- calculate.scores()
-      dscore_output = unique(scoredata[,c('run_id','trt','dscore_poiss','fold_change','effect_size','trt.lambdahat.per.run','trt.lowerci.per.run','nc.lambdahat.per.run','nc.upperci.per.run')])
+      dscore_output = unique(scoredata[,c('run_id',
+                                          'trt',
+                                          'dscore_poiss',
+                                          'fold_change',
+                                          'effect_size',
+                                          'trt.50qi.per.run.spline',
+                                          'trt.upperqi.per.run.spline',
+                                          'nc.50qi.per.run.spline',
+                                          'nc.upperqi.per.run.spline')])
       float_cols <- c('dscore_poiss',
                       'fold_change',
                       'effect_size',
-                      'trt.lambdahat.per.run',
-                      'trt.lowerci.per.run',
-                      'nc.lambdahat.per.run',
-                      'nc.upperci.per.run')
+                      'trt.50qi.per.run.spline',
+                      'trt.upperqi.per.run.spline',
+                      'nc.50qi.per.run.spline',
+                      'nc.upperqi.per.run.spline')
       dscore_output[,float_cols] <- round(dscore_output[,float_cols],2)
-      colnames(dscore_output) = c('run_id','trt','poiss_ds','fold_chg','eff_siz',paste0('trt_',lambda,'hat'),'trt_lowerci',paste0('nc_',lambda,'hat'),'nc_upperci')
+      colnames(dscore_output) = c('run_id','trt','poiss_ds','fold_chg','eff_siz','trt_middleqi','trt_upperqi','nc_middleqi','nc_upperqi')
       rownames(dscore_output) <- seq(length=nrow(dscore_output)) 
       return(DT::datatable(dscore_output))
       #}
     }, 
-    options = list(order = list(list(2, 'desc')))
+    options = list(order = list(list(3, 'desc')))
     )
     
     
@@ -279,9 +288,9 @@ shinyServer( function(input, output, session){
                 tags$li("trt = treatment condition of the well (e.g., DMSO or a compound name)"),
                 tags$li("poiss_zp = Poisson-based Z' factor for the plate based on user-provided definitions of control treatments"),
                 tags$li(paste0('nc_',lambda,'hat = ',lambda,' hat (expectation value) of the Poisson distribution fit to user-provided negative-control wells for the plate')),
-                tags$li("nc_upperci = upper 95% confidence boundary of the expectation value for negative-control wells"),
+                tags$li("nc_upperqi = three standard deviations quantile on the upper tail of the Poisson distribution fit to user-provided positive-control wells for the plate"),
                 tags$li(paste0('pc_',lambda,'hat = ',lambda,' hat (expectation value) of the Poisson distribution fit to user-provided positive-control wells for the plate')),
-                tags$li("pc_lowerci = lower 95% confidence boundary of the expectation value for positive-control wells")
+                tags$li("pc_lowerqi = three standard deviations quantile on the lower tail of the Poisson distribution fit to user-provided positive-control wells for the plate")
         ),
         easyClose = TRUE
       ))
@@ -297,11 +306,10 @@ shinyServer( function(input, output, session){
                 tags$li("poiss_ds = Poisson-based D-score for the treatment the compound (cf. https://www.ncbi.nlm.nih.gov/pubmed/24464433/)"),
                 tags$li("fold_chg = fold-change (ratio) of the treatment response compared to the negative control"),
                 tags$li("eff_siz = effect size (difference) between the treatment response and the negative control"),
-                tags$li(paste0('trt_',lambda,'hat = ',lambda,' hat (expectation value) of the Poisson distribution fit to treatment wells')),
-                tags$li("trt_lowerci = lower 95% confidence boundary of the expectation value for treatment wells"),
-                tags$li("trt_upperci = upper 95% confidence boundary of the expectation value for treatment wells"),
-                tags$li(paste0('nc_',lambda,'hat = ',lambda,' hat (expectation value) of the Poisson distribution fit to negative-control wells in this run')),
-                tags$li("nc_upperci = upper 95% confidence boundary of the expectation value for negative-control wells")
+                tags$li("trt_middleqi = middle quantile (median) of the Poisson distribution fit to treatment wells in a run"),
+                tags$li("trt_upperqi = one standard deviations quantile on the upper tail of the Poisson distribution fit to treatment wells in a run"),
+                tags$li("nc_middleqi = middle quantile (median) of the Poisson distribution fit to negative-control wells in a run"),
+                tags$li("nc_upperqi = one standard deviations quantile on the upper tail of the Poisson distribution fit to negative-control wells in a run")
         ),
         easyClose = TRUE
       ))
@@ -330,8 +338,16 @@ shinyServer( function(input, output, session){
     content = function(file) { #content of downloaded file
       scoredata <- calculate.scores()
       positive.control = input$poscon
-      qual_output = scoredata[(scoredata$trt == positive.control),c(2,1,7,5,6,3,4)]
-      colnames(qual_output) = c('plate_id','trt','poiss_zp','nc_lambdahat','nc_upperci','pc_lambdahat','pc_lowerci')
+      qual_output = scoredata[(scoredata$trt == positive.control),
+                              c('run_id',
+                                'plate_id',
+                                'trt',
+                                'zprime_poiss',
+                                'nc.lambdahat.per.plate',
+                                'nc.upperqi.per.plate.spline',
+                                'trt.lambdahat.per.plate',
+                                'trt.lowerqi.per.plate.spline')]
+      colnames(qual_output) = c('run_id', 'plate_id','trt','poiss_zp','nc_lambdahat','nc_upperqi','pc_lambdahat','pc_lowerqi')
       write.csv(qual_output[order(qual_output$plate_id),], file, row.names = FALSE)
       
     }
@@ -345,8 +361,16 @@ shinyServer( function(input, output, session){
     },
     content = function(file) { #content of downloaded file
       scoredata <- calculate.scores()
-      dscore_output = unique(scoredata[,c('trt','dscore_poiss','fold_change','effect_size','trt.lambdahat.per.run','trt.lowerci.per.run','nc.lambdahat.per.run','nc.upperci.per.run')])
-      colnames(dscore_output) = c('trt','poiss_ds','fold_chg','eff_siz','trt_lambdahat','trt_lowerci','nc_lambdahat','nc_upperci')
+      dscore_output = unique(scoredata[,c('run_id',
+                                          'trt',
+                                          'dscore_poiss',
+                                          'fold_change',
+                                          'effect_size',
+                                          'trt.50qi.per.run.spline',
+                                          'trt.upperqi.per.run.spline',
+                                          'nc.50qi.per.run.spline',
+                                          'nc.upperqi.per.run.spline')])
+      colnames(dscore_output) = c('run_id','trt','poiss_ds','fold_chg','eff_siz','trt_middleqi','trt_upperqi','nc_middleqi','nc_upperqi')
       write.csv(dscore_output[order(dscore_output$poiss_ds,decreasing = TRUE),], file, row.names = FALSE)
     }
   )

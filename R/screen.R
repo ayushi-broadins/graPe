@@ -29,11 +29,19 @@ graPe_plate_quality <- screen_score[(screen_score$trt == 'poscon'),
                                      'nc.upperqi.per.plate.spline',
                                      'trt.lambdahat.per.plate',
                                      'trt.lowerqi.per.plate.spline')] %>% arrange(plate_id)
+colnames(graPe_plate_quality) <- c('run_id',
+                                   'plate_id'
+                                   ,'trt',
+                                   'poiss_zp',
+                                   'nc_lambdahat',
+                                   'nc_upperqi',
+                                   'pc_lambdahat',
+                                   'pc_lowerqi')
 # Make a data frame for the
 # treatment activity scores.
 # remove plates with negative Poisson Z'-factor
-# 92 plates remain
-keep_plate <- graPe_plate_quality[graPe_plate_quality$zprime_poiss >= 0 ,
+# All plates remain
+keep_plate <- graPe_plate_quality[graPe_plate_quality$poiss_zp >= 0 ,
                                   c('run_id','plate_id')]
 # create data frame for 29440 unique compounds and 1 positive control
 graPe_activity_scores <- merge(screen_score, keep_plate, by=c('run_id','plate_id')) 
@@ -46,6 +54,16 @@ graPe_activity_scores <- unique(graPe_activity_scores[,c('run_id',
                                                          'trt.upperqi.per.run.spline',
                                                          'nc.50qi.per.run.spline',
                                                          'nc.upperqi.per.run.spline')]) %>% arrange(desc(dscore_poiss))
+colnames(graPe_activity_scores) = c('run_id',
+                                    'trt',
+                                    'poiss_ds',
+                                    'fold_chg',
+                                    'eff_siz',
+                                    'trt_middleqi',
+                                    'trt_upperqi',
+                                    'nc_middleqi',
+                                    'nc_upperqi')
+
 #export the Poisson scores
 write.csv(graPe_plate_quality, 
           file = "../data/high_content_screen/graPe_output/screen_graPe_plate_quality.csv", 
@@ -61,16 +79,16 @@ write.csv(graPe_activity_scores,
 #Poisson Z' factor
 #calculate and log2 transform the separation band for each plate
 graPe_plate_quality <- graPe_plate_quality %>% 
-  mutate(sep_band = trt.lowerqi.per.plate.spline - nc.upperqi.per.plate.spline,
+  mutate(sep_band = pc_lowerqi - nc_upperqi,
          sep_band_log2 = log2(1 - min(sep_band) + sep_band))
-fit <- lm(zprime_poiss ~ sep_band_log2, data = graPe_plate_quality)
+fit <- lm(poiss_zp ~ sep_band_log2, data = graPe_plate_quality)
 jpeg("../plots/high_content_screen/poisson_zprimefactor.jpeg", quality = 100)
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point(alpha=0.5,size=6) +
   stat_smooth(method = "lm", color = 4, fill = 4, alpha=0.3) +
   annotate("text",
            x=min(graPe_plate_quality$sep_band_log2),
-           y=max(graPe_plate_quality$zprime_poiss)-0.1,
+           y=max(graPe_plate_quality$poiss_zp)-0.1,
            hjust=0,
            size = 5,
            family = "sans",
@@ -87,9 +105,9 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 dev.off()
 #Poisson d-scores
 graPe_activity_scores <- graPe_activity_scores %>% 
-  mutate(dscore_poiss_log2 = log2(1 - min(dscore_poiss) + dscore_poiss))
+  mutate(dscore_poiss_log2 = log2(1 - min(poiss_ds) + poiss_ds))
 # We identify hits using Poisson d-score threshold of 3.
-hits <- graPe_activity_scores[(graPe_activity_scores$dscore_poiss >= 3 & 
+hits <- graPe_activity_scores[(graPe_activity_scores$poiss_ds >= 3 & 
                                  graPe_activity_scores$trt!='poscon'),]
 jpeg("../plots/high_content_screen/poisson_dscore.jpeg", quality = 100)
 ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
@@ -108,8 +126,8 @@ ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
   theme(axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         plot.margin=unit(c(0.5,1,0.5,0.5),"cm"))+
-  geom_hline(yintercept=log2(1 - min(graPe_activity_scores$dscore_poiss) + 3),
-             linetype='dashed', color='black', size=1) +
+  geom_hline(yintercept=log2(1 - min(graPe_activity_scores$poiss_ds) + 3),
+             linetype='dashed', color='black', size=1.5) +
   coord_cartesian(clip = "off")+
   theme(text=element_text(size=24))
 dev.off()
