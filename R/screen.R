@@ -13,7 +13,11 @@ source("poiss_calc.R")
 
 # read in the high-content screen data
 # this data contains results from multiple runs/experiments
-screen_data <- read.csv("../data/high_content_screen/graPe_input/screen_graPe_input.csv",
+# To use this script for another input, either rename your 
+# input file as "screen_graPe_input.csv" or change 
+# the file name in the read.csv() command below.
+screen_data <- read.csv("screen_graPe_input.csv", 
+                        # data from supplementary table 4 in the 2021 graPe paper
                         stringsAsFactors = FALSE)
 #run graPe
 screen_score <- run_graPe(screen_data, 'DMSO')
@@ -28,7 +32,7 @@ graPe_plate_quality <- screen_score[(screen_score$trt == 'poscon'),
                                      'nc.lambdahat.per.plate',
                                      'nc.upperqi.per.plate.spline',
                                      'trt.lambdahat.per.plate',
-                                     'trt.lowerqi.per.plate.spline')] %>% arrange(plate_id)
+                                     'trt.lowerqi.per.plate.spline')] %>% arrange(desc(zprime_poiss))
 colnames(graPe_plate_quality) <- c('run_id',
                                    'plate_id'
                                    ,'trt',
@@ -66,10 +70,10 @@ colnames(graPe_activity_scores) = c('run_id',
 
 #export the Poisson scores
 write.csv(graPe_plate_quality, 
-          file = "../data/high_content_screen/graPe_output/screen_graPe_plate_quality.csv", 
+          file = "screen_graPe_plate_quality.csv", 
           row.names = FALSE)
 write.csv(graPe_activity_scores, 
-          file = "../data/high_content_screen/graPe_output/screen_grape_activity_scores.csv", 
+          file = "screen_grape_activity_scores.csv", 
           row.names = FALSE)
 
 
@@ -82,7 +86,7 @@ graPe_plate_quality <- graPe_plate_quality %>%
   mutate(sep_band = pc_lowerqi - nc_upperqi,
          sep_band_log2 = log2(1 - min(sep_band) + sep_band))
 fit <- lm(poiss_zp ~ sep_band_log2, data = graPe_plate_quality)
-jpeg("../plots/high_content_screen/poisson_zprimefactor.jpeg", quality = 100)
+jpeg("screen_poisson_zprimefactor.jpeg", quality = 100)
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point(alpha=0.5,size=6) +
   stat_smooth(method = "lm", color = 4, fill = 4, alpha=0.3) +
@@ -109,7 +113,7 @@ graPe_activity_scores <- graPe_activity_scores %>%
 # We identify hits using Poisson d-score threshold of 3.
 hits <- graPe_activity_scores[(graPe_activity_scores$poiss_ds >= 3 & 
                                  graPe_activity_scores$trt!='poscon'),]
-jpeg("../plots/high_content_screen/poisson_dscore.jpeg", quality = 100)
+jpeg("screen_poisson_dscore.jpeg", quality = 100)
 ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
   geom_point(color='grey',alpha=0.3, size = 4) + 
   geom_point(data =hits,

@@ -75,7 +75,7 @@ for(i in 1:n_plate){
   }
 }
 #export the simulated data
-write.csv(dat, file = "../data/simulation/graPe_input/sim_input_data.csv", row.names = FALSE)
+write.csv(dat, file = "sim_input_data.csv", row.names = FALSE)
 
 
 ######################
@@ -92,7 +92,7 @@ graPe_plate_quality <- poiss.score[(poiss.score$trt == 'poscon'),
                                      'nc.lambdahat.per.plate',
                                      'nc.upperqi.per.plate.spline',
                                      'trt.lambdahat.per.plate',
-                                     'trt.lowerqi.per.plate.spline')] %>% arrange(plate_id)
+                                     'trt.lowerqi.per.plate.spline')] %>% arrange(desc(zprime_poiss))
 colnames(graPe_plate_quality) <- c('run_id',
                                    'plate_id'
                                    ,'trt',
@@ -134,22 +134,23 @@ em_hits <- unique(dat[dat$is_hit==1 & dat$trt!='poscon', 'trt'])
 # the value of the 99th quantile of the Poisson d-score distribution. 
 upper_bound <- quantile(graPe_activity_scores$poiss_ds, 0.99)
 # find the confusion matrix for graPe
-table(graPe_activity_scores$poiss_ds > upper_bound, graPe_activity_scores$trt %in% em_hits)
+table(graPe_activity_scores$poiss_ds[graPe_activity_scores$trt != "poscon"] >= upper_bound, 
+      graPe_activity_scores$trt[graPe_activity_scores$trt != "poscon"] %in% em_hits)
 #             Hits in simulation
 #           |------|------|-----|
 #           |      | FALSE| TRUE|
 #           |------|------|-----|
-#Hits in    |FALSE | 29137|  13 |
+#Hits in    |FALSE | 29131|  12 |
 #           |------|------|-----|
-#graPe      |TRUE  | 153  | 138 |
+#graPe      |TRUE  | 158  | 139 |
 #           |------|------|-----|
 #
 #export the Poisson scores
 write.csv(graPe_plate_quality, 
-          file = "../data/simulation/graPe_output/sim_graPe_plate_quality.csv", 
+          file = "sim_graPe_plate_quality.csv", 
           row.names = FALSE)
 write.csv(graPe_activity_scores, 
-          file = "../data/simulation/graPe_output/sim_grape_activity_scores.csv", 
+          file = "sim_grape_activity_scores.csv", 
           row.names = FALSE)
 
 
@@ -162,7 +163,7 @@ graPe_plate_quality <- graPe_plate_quality %>%
   mutate(sep_band = pc_lowerqi - nc_upperqi,
          sep_band_log2 = log2(1 - min(sep_band) + sep_band))
 fit <- lm(poiss_zp ~ sep_band_log2, data = graPe_plate_quality)
-jpeg("../plots/simulation/poisson_zprimefactor.jpeg", quality = 100)
+jpeg("sim_poisson_zprimefactor.jpeg", quality = 100)
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point(alpha=0.5,size=6) +
   stat_smooth(method = "lm", color = 4, fill = 4, alpha=0.3) +
@@ -186,14 +187,14 @@ dev.off()
 #Poisson d-scores
 graPe_activity_scores <- graPe_activity_scores %>% 
   mutate(dscore_poiss_log2 = log2(1 - min(poiss_ds) + poiss_ds))
-jpeg("../plots/simulation/poisson_dscore.jpeg", quality = 100)
+jpeg("sim_poisson_dscore.jpeg", quality = 100)
 ggplot(graPe_activity_scores, aes(x=trt,y=dscore_poiss_log2)) +
   geom_point(color='grey',alpha=0.3, size = 4) + 
   geom_point(data =graPe_activity_scores[graPe_activity_scores$trt %in% em_hits,],
              aes(x=trt,y=dscore_poiss_log2),
              color='blue',
              alpha=0.6,size=4) +
-  geom_jitter(data =graPe_activity_scores[graPe_activity_scores$trt == 'poscon',],
+  geom_point(data =graPe_activity_scores[graPe_activity_scores$trt == 'poscon',],
              aes(x=trt,y=dscore_poiss_log2),
              color='#00B81F',alpha = 0.6,size=4) +
   labs(title="",#"Scatter plot of Poisson d-score", 
@@ -211,6 +212,6 @@ dev.off()
 
 
 #reporting the session information
-writeLines(capture.output(sessionInfo()), "../sessionInfo.txt")
+writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
 
 ###################################  END ###################################
